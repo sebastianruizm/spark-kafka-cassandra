@@ -4,7 +4,17 @@ Demo Spark Structured Streaming + Apache Kafka
 """
 
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import sum
+
 import sys
+
+
+def writeToCassandra(df, epochId):
+    df.write \
+        .format("org.apache.spark.sql.cassandra") \
+        .options(table="transacciones", keyspace="demo") \
+        .mode("append") \
+        .save()
 
 
 def main():
@@ -24,20 +34,21 @@ def main():
         .option("subscribe", topic) \
         .option("startingOffsets", "earliest") \
         .load() \
-        .createOrReplaceTempView("tmp_topic_transacciones")
+        .createOrReplaceTempView("tmp_table")
 
     query = """
         SELECT FROM_JSON(
                 CAST(value AS STRING), 'cliente INT, importe INT'
             ) AS json_struct 
-        FROM tmp_topic_transacciones
+        FROM tmp_table
     """
 
     spark.sql(query) \
-        .select("json_struct.*").groupBy("cliente").sum("importe") \
+        .select("json_struct.*") \
+        .groupBy("cliente").agg(sum("importe").alias("importe")) \
         .writeStream \
-        .outputMode('complete') \
-        .format('console') \
+        .foreachBatch(writeToCassandra) \
+        .outputMode("update") \
         .trigger(processingTime='10 seconds') \
         .start() \
         .awaitTermination()

@@ -20,7 +20,7 @@ Crear topic
 --zookeeper localhost:2181 \
 --replication-factor 1 \
 --partitions 1 \
---topic topic_transacciones
+--topic topic-transacciones
 ```
 
 Consumir mensajes de un topic
@@ -28,32 +28,44 @@ Consumir mensajes de un topic
 ```Shell
 ./kafka_2.12-2.1.1/bin/kafka-console-consumer.sh \
 --bootstrap-server localhost:9092 \
---topic topic_transacciones \
+--topic topic-transacciones \
 --from-beginning
 ```
 
 ## Python
 
-Generar transacciones
+Producir transacciones hacia Kafka
 
 ```Shell
-python3 2_generar_transacciones.py topic_transacciones
+python3 2_producir_transacciones.py topic-transacciones
 ```
+
+![PythonKafka](images/kafka-consumer.png)
 
 ## Spark
 
 Ejecutar aplicación streaming
 
 ```Shell
-./spark-2.3.0-bin-hadoop2.7/bin/spark-submit \
---jars spark-sql-kafka-0-10_2.11-2.3.0.jar,kafka-clients-2.1.1.jar \
-3_spark_streaming_kafka.py \
-topic_transacciones
+./spark-2.4.3-bin-hadoop2.7/bin/spark-submit \
+    --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.3,org.apache.kafka:kafka-clients:2.1.1,com.datastax.spark:spark-cassandra-connector_2.11:2.4.3 \
+    3_kafka_spark_cassandra.py \
+    topic-transacciones
 ```
 
+## Cassandra
+
+```Shell
+./apache-cassandra-2.2.16/bin/cqlsh
+
+cqlsh> SELECT * FROM demo.transacciones;
+```
+
+![Cassandra](images/cassandra.png)
 
 ## Dependencias
 
 - [kafka-python](https://kafka-python.readthedocs.io/en/master/)
-- [kafka-clients-2.1.1](https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/2.1.1)
-- [spark-sql-kafka-0-10_2.11-2.3.0](https://mvnrepository.com/artifact/org.apache.spark/spark-sql-kafka-0-10_2.11/2.3.0)
+- [kafka-clients](https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/2.1.1)
+- [spark-sql-kafka](https://mvnrepository.com/artifact/org.apache.spark/spark-sql-kafka-0-10_2.11/2.4.3)
+- [spark-cassandra-connector](https://mvnrepository.com/artifact/com.datastax.spark/spark-cassandra-connector_2.11/2.4.1)
