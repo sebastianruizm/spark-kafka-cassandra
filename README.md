@@ -1,6 +1,6 @@
-# Meetup Apache Spark México
+# Spark Kafka Cassandra
 
-Demo Spark Structured Streaming + Apache Kafka
+Demo Spark Structured Streaming + Apache Kafka + Cassandra
 
 ## Entorno
 
