@@ -18,7 +18,7 @@ def writeToCassandra(df, epochId):
 
 def main():
     spark = SparkSession.builder \
-        .appName("Meetup-Apache-Spark-Mexico") \
+        .appName("Spark-Kafka-Cassandra") \
         .enableHiveSupport() \
         .getOrCreate()
 
