@@ -1,6 +1,5 @@
 """
-Meetup Apache Spark Mexico
-Demo Spark Structured Streaming + Apache Kafka
+Demo Spark Structured Streaming + Apache Kafka + Cassandra
 """
 
 from pyspark.sql import SparkSession
