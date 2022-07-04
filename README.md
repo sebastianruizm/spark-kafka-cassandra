@@ -1,69 +1,118 @@
-# Spark Kafka Cassandra
+# Demo Spark Kafka Cassandra
 
-Demo Spark Structured Streaming + Apache Kafka + Cassandra
-
-## Entorno
-
-AWS EC2 t2.large (Ubuntu Server 20.04 LTS)
-
-```Shell
-./1_configurar_entorno.sh 
+```mermaid
+  graph LR;
+    subgraph Docker
+      A[Kafka]
+      B[Spark]
+      C[Cassandra]
+      A-->B
+      B-->C
+    end
 ```
 
-## Kafka
+Steps
+1. Produce fake banking transactions events to Kafka
+2. Consume and process events with Spark Structured Streaming
+3. Store the results in Cassandra
 
-Crear topic
+## Docker
+
+Build an image and get a bash shell in the container
 
 ```Shell
-./kafka_2.12-2.1.1/bin/kafka-topics.sh \
---create \
---zookeeper localhost:2181 \
---replication-factor 1 \
---partitions 1 \
---topic topic-transacciones
+docker build -t spark-demo:1.0 .
+
+docker run -ti spark-demo:1.0 /bin/bash
 ```
 
-Consumir mensajes de un topic
+## Bash
+
+Setup environment
 
 ```Shell
-./kafka_2.12-2.1.1/bin/kafka-console-consumer.sh \
---bootstrap-server localhost:9092 \
---topic topic-transacciones \
---from-beginning
+scripts/bash/setup-env.sh
 ```
 
 ## Python
 
-Producir transacciones hacia Kafka
+Produce events to Kafka
 
 ```Shell
-python3 2_producir_transacciones.py topic-transacciones
+python3 scripts/python/generate-random-events.py spark-demo-events
 ```
 
-![PythonKafka](images/kafka-consumer.png)
+```Shell
+{'client': 3, 'amount': 100}
+{'client': 5, 'amount': -350}
+{'client': 2, 'amount': -250}
+{'client': 4, 'amount': 300}
+{'client': 4, 'amount': -100}
+{'client': 3, 'amount': 0}
+{'client': 4, 'amount': 100}
+{'client': 4, 'amount': -50}
+{'client': 4, 'amount': -200}
+{'client': 5, 'amount': 150}
+```
+
+## Kafka
+
+Consume events from Kafka
+
+```Shell
+$KAFKA_HOME/bin/kafka-console-consumer.sh \
+--bootstrap-server localhost:9092 \
+--topic spark-demo-events \
+--from-beginning
+```
+
+```Shell
+{"client": 3, "amount": 100}
+{"client": 5, "amount": -350}
+{"client": 2, "amount": -250}
+{"client": 4, "amount": 300}
+{"client": 4, "amount": -100}
+{"client": 3, "amount": 0}
+{"client": 4, "amount": 100}
+{"client": 4, "amount": -50}
+{"client": 4, "amount": -200}
+{"client": 5, "amount": 150}
+```
 
 ## Spark
 
-Ejecutar aplicación streaming
+Execute spark streaming app
 
 ```Shell
-./spark-2.4.3-bin-hadoop2.7/bin/spark-submit \
+nohup $SPARK_HOME/bin/spark-submit \
     --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.3,org.apache.kafka:kafka-clients:2.1.1,com.datastax.spark:spark-cassandra-connector_2.11:2.4.3 \
-    3_kafka_spark_cassandra.py \
-    topic-transacciones
+    scripts/python/data-pipeline-streaming.py \
+    spark-demo-events & > /dev/null
 ```
 
 ## Cassandra
 
-```Shell
-./apache-cassandra-2.2.16/bin/cqlsh
+View results
 
-cqlsh> SELECT * FROM demo.transacciones;
+```Shell
+$CASSANDRA_HOME/bin/cqlsh
 ```
 
-![Cassandra](images/cassandra.png)
+```Shell
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 2.2.16 | CQL spec 3.3.1 | Native protocol v4]
+Use HELP for help.
+cqlsh> SELECT * FROM demo.transactions;
 
-## Dependencias
+ client | amount
+--------+--------
+      5 |   -200
+      2 |   -250
+      4 |     50
+      3 |    100
+```
+
+## Dependencies
 
 - [kafka-python](https://kafka-python.readthedocs.io/en/master/)
 - [kafka-clients](https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/2.1.1)

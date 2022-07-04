@@ -7,14 +7,12 @@ from pyspark.sql.functions import sum
 
 import sys
 
-
 def writeToCassandra(df, epochId):
     df.write \
         .format("org.apache.spark.sql.cassandra") \
-        .options(table="transacciones", keyspace="demo") \
+        .options(table="transactions", keyspace="demo") \
         .mode("append") \
         .save()
-
 
 def main():
     spark = SparkSession.builder \
@@ -37,14 +35,14 @@ def main():
 
     query = """
         SELECT FROM_JSON(
-                CAST(value AS STRING), 'cliente INT, importe INT'
+                CAST(value AS STRING), 'client INT, amount INT'
             ) AS json_struct 
         FROM tmp_table
     """
 
     spark.sql(query) \
         .select("json_struct.*") \
-        .groupBy("cliente").agg(sum("importe").alias("importe")) \
+        .groupBy("client").agg(sum("amount").alias("amount")) \
         .writeStream \
         .foreachBatch(writeToCassandra) \
         .outputMode("update") \
