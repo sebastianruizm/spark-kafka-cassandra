@@ -1,20 +1,32 @@
-# Spark Kafka Cassandra
+# Demo Spark Kafka Cassandra
 
-Demo Spark Structured Streaming + Apache Kafka + Cassandra
+```mermaid
+  graph LR;
+    subgraph Docker
+      A[Kafka]
+      B[Spark]
+      C[Cassandra]
+      A-->B
+      B-->C
+    end
+```
+
+Steps
+1. Produce fake banking transactions events to Kafka
+2. Consume and process events with Spark Structured Streaming
+3. Store the results in Cassandra
 
 ## Docker
 
-Build image
+Build an image and get a bash shell in the container
 
 ```Shell
 docker build -t spark-demo:1.0 .
-```
 
-Get a bash shell in the container
-
-```Shell
 docker run -ti spark-demo:1.0 /bin/bash
 ```
+
+## Bash
 
 Setup environment
 ```Shell
@@ -24,18 +36,7 @@ scripts/bash/setup-env.sh
 
 ## Kafka
 
-Crear topic
-
-```Shell
-$KAFKA_HOME/bin/kafka-topics.sh \
---create \
---zookeeper localhost:2181 \
---replication-factor 1 \
---partitions 1 \
---topic spark-demo-events
-```
-
-Consumir mensajes de un topic
+Consume events from Kafka
 
 ```Shell
 $KAFKA_HOME/bin/kafka-console-consumer.sh \
@@ -76,7 +77,7 @@ cqlsh> SELECT * FROM demo.transactions;
 
 ![Cassandra](images/cassandra.png)
 
-## Dependencias
+## Dependencies
 
 - [kafka-python](https://kafka-python.readthedocs.io/en/master/)
 - [kafka-clients](https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/2.1.1)
