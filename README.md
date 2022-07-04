@@ -29,10 +29,31 @@ docker run -ti spark-demo:1.0 /bin/bash
 ## Bash
 
 Setup environment
+
 ```Shell
 scripts/bash/setup-env.sh
 ```
 
+## Python
+
+Produce events to Kafka
+
+```Shell
+python3 scripts/python/generate-random-events.py spark-demo-events
+```
+
+```Shell
+{'client': 3, 'amount': 100}
+{'client': 5, 'amount': -350}
+{'client': 2, 'amount': -250}
+{'client': 4, 'amount': 300}
+{'client': 4, 'amount': -100}
+{'client': 3, 'amount': 0}
+{'client': 4, 'amount': 100}
+{'client': 4, 'amount': -50}
+{'client': 4, 'amount': -200}
+{'client': 5, 'amount': 150}
+```
 
 ## Kafka
 
@@ -45,37 +66,51 @@ $KAFKA_HOME/bin/kafka-console-consumer.sh \
 --from-beginning
 ```
 
-## Python
-
-Produce events to Kafka
-
 ```Shell
-python3 scripts/python/generate-random-events.py spark-demo-events
+{"client": 3, "amount": 100}
+{"client": 5, "amount": -350}
+{"client": 2, "amount": -250}
+{"client": 4, "amount": 300}
+{"client": 4, "amount": -100}
+{"client": 3, "amount": 0}
+{"client": 4, "amount": 100}
+{"client": 4, "amount": -50}
+{"client": 4, "amount": -200}
+{"client": 5, "amount": 150}
 ```
-
-![PythonKafka](images/kafka-consumer.png)
 
 ## Spark
 
 Execute spark streaming app
 
 ```Shell
-$SPARK_HOME/bin/spark-submit \
+nohup $SPARK_HOME/bin/spark-submit \
     --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.3,org.apache.kafka:kafka-clients:2.1.1,com.datastax.spark:spark-cassandra-connector_2.11:2.4.3 \
     scripts/python/data-pipeline-streaming.py \
-    spark-demo-events
+    spark-demo-events & > /dev/null
 ```
 
 ## Cassandra
 
 View results
+
 ```Shell
 $CASSANDRA_HOME/bin/cqlsh
-
-cqlsh> SELECT * FROM demo.transactions;
 ```
 
-![Cassandra](images/cassandra.png)
+```Shell
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 2.2.16 | CQL spec 3.3.1 | Native protocol v4]
+Use HELP for help.
+cqlsh> SELECT * FROM demo.transactions;
+
+ client | amount
+--------+--------
+      5 |   -200
+      2 |   -250
+      4 |     50
+      3 |    100
+```
 
 ## Dependencies
 
