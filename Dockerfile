@@ -8,6 +8,7 @@ ENV CASSANDRA_HOME /spark-demo/cassandra
 
 RUN apt-get update
 RUN apt-get install -y openjdk-8-jdk-headless wget python python3-pip
+RUN pip install kafka-python
 
 RUN mkdir scripts
 COPY scripts scripts
