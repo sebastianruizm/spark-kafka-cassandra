@@ -112,6 +112,32 @@ cqlsh> SELECT * FROM demo.transactions;
       3 |    100
 ```
 
+## Python Virtual Environment Setup
+
+It’s recommended to use a Python virtual environment for dependency management.
+
+1. Create a virtual environment:
+   ```sh
+   python3 -m venv .venv
+   ```
+
+2. Activate the virtual environment:
+   - On Linux/macOS:
+     ```sh
+     source .venv/bin/activate
+     ```
+   - On Windows:
+     ```sh
+     .venv\Scripts\activate
+     ```
+
+3. Install dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+Now you can run the Python scripts as described below.
+
 ## Dependencies
 
 - [kafka-python](https://kafka-python.readthedocs.io/en/master/)
