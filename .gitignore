@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Spark logs
+*.log
+
+# Cassandra data
+cassandra/data/
+cassandra/logs/
+
+# Kafka logs
+kafka/logs/
+kafka/data/
+
+# VS Code
+.vscode/
+
+# Docker
+*.tgz
+*.tar.gz
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebooks
+.ipynb_checkpoints/

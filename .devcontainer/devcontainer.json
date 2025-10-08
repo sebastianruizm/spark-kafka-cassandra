@@ -1,0 +1,17 @@
+{
+  "name": "Spark-Kafka-Cassandra Dev",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "settings": {
+    "python.pythonPath": "/usr/bin/python3"
+  },
+  "postCreateCommand": "pip install -r requirements.txt",
+  "forwardPorts": [9092, 9042],
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.10"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+  }
+}
